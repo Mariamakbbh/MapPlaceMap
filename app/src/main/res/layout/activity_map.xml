@@ -53,7 +53,7 @@
             android:textColor="#000"
             android:id="@+id/input_search"
             android:background="@null"
-            android:hint="Enter Address, City or Zip Code"
+            android:hint="Enter Product ID, Name or Store Address"
             android:imeOptions="actionSearch"/>
 
 
@@ -89,6 +89,13 @@
         android:scaleType="centerCrop"
         android:id="@+id/place_info"
         android:src="@drawable/ic_info"/>
+
+    <TextView
+        android:id="@+id/txtView"
+        android:layout_width="278dp"
+        android:layout_height="83dp"
+        android:layout_alignBottom="@+id/map"
+        android:layout_marginBottom="133dp" />
 
 
 

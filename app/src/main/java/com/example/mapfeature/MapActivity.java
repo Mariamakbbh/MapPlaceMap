@@ -1,10 +1,12 @@
 package com.example.mapfeature;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -38,6 +40,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.maps.android.SphericalUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,7 +50,10 @@ import java.util.List;
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, TaskLoadedCallback {
     private MarkerOptions place1, place2, place3;
     Button getDirection;
+    ImageView getDistance;
+    TextView txtView;
     private Polyline currentPolyline;
+    public static String product; //this will get the product's name
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,8 +61,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         mSearchText = (EditText) findViewById(R.id.input_search);
         mGps = (ImageView) findViewById(R.id.ic_gps);
+        txtView=(TextView)findViewById(R.id.txtView);
 
         getLocationPermission();
+
+        getDistance = findViewById(R.id.place_info); //thsi calculates the distance between locations
+        getDistance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                double earthRadius = 6371000; //meters
+                double dLat = Math.toRadians(51.53482199720537-51.53324257305175);
+                double dLng = Math.toRadians((-0.48274804085372125)-(-0.47354936599731445));
+                double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                        Math.cos(Math.toRadians(51.53324257305175)) * Math.cos(Math.toRadians(51.53482199720537)) *
+                                Math.sin(dLng/2) * Math.sin(dLng/2);
+                double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                float dist = (float) (earthRadius * c);
+                txtView.setText(String.valueOf(dist));
+            }
+        });
 
         getDirection = findViewById(R.id.btnGetDirection);
         getDirection.setOnClickListener(new View.OnClickListener() {
@@ -68,14 +92,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
 ////        //27.658143,85.3199503
 ////        //27.667491,85.3208583
-
-
-        place1 = new MarkerOptions().position(new LatLng(51.532838,-0.472856)).title("My Location");
-        place2 = new MarkerOptions().position(new LatLng(51.52907368349583,-0.48155284008646504)).title("TESCO 1");
-        place2.icon(BitmapDescriptorFactory.fromResource(R.drawable.tescoreal_round));
-        place3 = new MarkerOptions().position(new LatLng(51.54041515637101,-0.47894796984439836)).title("TESCO 2");
-       place3.icon(BitmapDescriptorFactory.fromResource(R.drawable.tescoreal_round));
-
+//        place1 = new MarkerOptions().position(new LatLng(51.53324257305175,-0.47354936599731445)).title("My Location");
+//        place2 = new MarkerOptions().position(new LatLng(51.53482199720537,-0.48274804085372125)).title("TESCO 1");
+//        place2.icon(BitmapDescriptorFactory.fromResource(R.drawable.tescoreal_round));
+//
+//        place3 = new MarkerOptions().position(new LatLng(51.54041515637101,-0.47894796984439836)).title("TESCO 2");
+//        place3.icon(BitmapDescriptorFactory.fromResource(R.drawable.tescoreal_round));
+        moveCameraa();
 
 
     }
@@ -243,6 +266,40 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
         }
     }
+
+    private void moveCameraa() {
+
+
+       // mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(MapActivity.this));
+
+            try {
+                String snippet = "Product Name: " + "\n" +
+                        "Product ID: " + "\n" +
+                        "Store Name: Tesco" + "\n" +
+                        "Price of Iteam: " + "\n";
+
+//                MarkerOptions options = new MarkerOptions()
+//                        .position(latLng)
+//                        .title(placeInfo.getName())
+//                        .snippet(snippet);
+//                mMarker = mMap.addMarker(options);
+                //mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter(MapActivity.this));
+
+                place1 = new MarkerOptions().position(new LatLng(51.53324257305175, -0.47354936599731445)).title("My Location");
+                place2 = new MarkerOptions().position(new LatLng(51.53482199720537, -0.48274804085372125)).title("TESCO 1");
+                place2.icon(BitmapDescriptorFactory.fromResource(R.drawable.tescoreal_round));
+                place2.snippet(snippet);
+                place3 = new MarkerOptions().position(new LatLng(51.54041515637101, -0.47894796984439836)).title("TESCO 2");
+                place3.icon(BitmapDescriptorFactory.fromResource(R.drawable.tescoreal_round));
+
+
+
+
+            } catch (NullPointerException e) {
+                Log.e(TAG, "moveCamera: NullPointerException: " + e.getMessage());
+            }
+
+        }
 
     private void moveCamera(LatLng latLng, float zoom, String title){
         Log.d(TAG, "moveCamera: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude );
